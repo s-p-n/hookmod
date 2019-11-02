@@ -156,17 +156,14 @@ modules/
 ```
 ***`food/main.js`***
 ```
-// Only load this file once:
-if (this.loaded) {
-    return;
+constructor() {
+    // Create a property to store food:
+    this.state.food = 0;
+
+    // Instantiate comms and events
+    new this.hook.comms();
+    new this.control.events();
 }
-
-// Create a property to store food:
-this.state.food = 0;
-
-// Instantiate comms and events
-new this.hook.comms();
-new this.control.events();
 ```
 ***`food/hook/comms.js`***
 ```
