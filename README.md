@@ -36,6 +36,7 @@ To make your module more useful, create sub-directories.
 * * JavaScript files must end with `.js`.
 * * CSS files must end with `.css`.
 * * Partial HTML documents must end with `.htm`.
+* * New extensions may be supported by adding to https://github.com/s-p-n/hookmod/tree/master/lib/ext
 * * Apart from the extension, the filename must be compatible with JavaScript variables.
 
 Example 2: *(`foo` module with a child `bar` module and some extra stuff)*
@@ -101,7 +102,11 @@ Modules must not be named any of the following:
 * any reserved word (yield, return, for, while, in, with, etc)
 
 #### `modules.fetch(String name)` (Function) 
-Constructs a module named `name`. The first time the module is fetched, it's `loaded` property is set to `false`. Any subsequent calls, `loaded` is set to `true`.
+Constructs a module named `name`. 
+* The first time the module is fetched, the `constructor()` is invoked, and the module instance is added to cache. 
+* Everytime a module is fetched:
+* * The `onFetch()` method (if defined in `main`) is invoked.
+* * The module instance is returned.
 
 #### `modules.share` (Object)
 An object that is shared by all of the modules and constructed prototypes.
@@ -109,7 +114,7 @@ An object that is shared by all of the modules and constructed prototypes.
 #### `modules.MODULE_NAME` (Constructor)
 A reference to every **available** top-level module is referenced as a member of `modules`. 
 
-> **Note:** There's no guarantee your module is **available**, so never instantiate your modules using `new modules.MODULE_NAME`. Always use `modules.fetch("MODULE_NAME")` instead. 
+> **Note:** There's no guarantee your module is **available**, so never instantiate your modules using `new modules.MODULE_NAME`. Always use `modules.fetch("MODULE_NAME")` instead. Further, constructing your modules using `new` will not cache the module, will not fetch the module instance from cache, will always call the `constructor()` and will not trigger `onFetch()`.
 
 ***
 
@@ -131,13 +136,17 @@ modules/
 - - main.js
 ```
 ***`foo/main.js`***
-```
-let bar = this.modules.fetch('bar');
-bar.parent === this; // true
+```JavaScript
+constructor() {
+    let bar = this.modules.fetch('bar');
+    bar.parent === this; // true
+}
 ```
 ***`foo/modules/bar/main.js`***
-```
-this.parent === window.modules.foo.prototype; // true
+```JavaScript
+constructor() {
+    this.parent === window.modules.foo.prototype; // true
+}
 ```
 
 ### `this.state`
@@ -155,7 +164,7 @@ modules/
 - - main.js
 ```
 ***`food/main.js`***
-```
+```JavaScript
 constructor() {
     // Create a property to store food:
     this.state.food = 0;
@@ -166,7 +175,7 @@ constructor() {
 }
 ```
 ***`food/hook/comms.js`***
-```
+```JavaScript
 const self = this;
 // Listen for the server to change the value of "food"
 socket.on("food-change", amount => {
@@ -175,7 +184,7 @@ socket.on("food-change", amount => {
 });
 ```
 ***`food/control/events.js`***
-```
+```JavaScript
 const self = this;
 // Listen for an input named "food" to change
 $('#food input[name=food]').on('change', function (e) {
