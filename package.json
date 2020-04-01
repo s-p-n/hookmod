@@ -1,6 +1,6 @@
 {
   "name": "hookmod",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Framework with Modules and Hooks.",
   "author": "Spencer A. Lockhart <slockhartbiz@gmail.com>",
   "homepage": "https://github.com/s-p-n/hookmod",
@@ -8,7 +8,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blood-sand/blood-sand-game.git"
+    "url": "git+https://github.com/s-p-n/hookmod.git"
   },
   "keywords": [
     "module",
@@ -17,7 +17,7 @@
     "server"
   ],
   "bugs": {
-    "url": "https://github.com/blood-sand/blood-sand-game/issues"
+    "url": "https://github.com/s-p-n/hookmod/issues"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

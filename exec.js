@@ -16,8 +16,6 @@ if (!process.argv[3]) {
 
 let p = new Group(process.argv[2])
 
-let share = 'const __SHARE__ = {};\n';
-
-fs.writeFileSync(path.resolve(process.argv[3]), share + p.output);
+p.writeTo(path.resolve(process.argv[3]));
 
 console.log('Modules compressed.');
