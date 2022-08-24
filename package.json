@@ -24,5 +24,8 @@
   },
   "bin": {
     "hookmod": "exec.js"
+  },
+  "dependencies": {
+    "colors": "^1.4.0"
   }
 }
