@@ -1,6 +1,6 @@
 {
   "name": "hookmod",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Framework with Modules and Hooks.",
   "author": "Spencer A. Lockhart <slockhartbiz@gmail.com>",
   "homepage": "https://github.com/s-p-n/hookmod",
@@ -26,6 +26,7 @@
     "hookmod": "exec.js"
   },
   "dependencies": {
-    "colors": "^1.4.0"
+    "colors": "^1.4.0",
+    "source-map": "^0.7.4"
   }
 }
