@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('colors');
+//npmrequire('colors');
 
 let Group = require('./lib/Group.js');
 let verbose = false;
@@ -19,7 +19,7 @@ const instructions = (function () {
 }());
 
 function error (message) {
-  console.error(`${message.red}${instructions.black}`.bgBrightWhite);
+  console.error(`${message}\n${instructions}`);
 }
 
 if (process.argv[2] === '-v') {
