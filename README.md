@@ -1,196 +1,330 @@
-## Abstract
-Modules were put in the browser to give developers a way to encapsulate code and share data more safely. Using modules allows developers to separate concerns, share data, and keep files small. Modules don't restrict you completely, and allow you to get work done. Because of the nature of JavaScript in the browser, developers still need to be smart about not polluting global. Thankfully, Modules provide a means of sharing data so that it's easy to get work done without performing bad practices that end up hindering development speed in the long run.
+# HookMod: Quick Start Guide
 
-## How Modules Are Stored and Loaded
-Modules get compiled into a single JavaScript file- the CSS, HTML, and JavaScript from all of the modules are all built and compressed together. When the browser loads, modules do not execute until they are *fetched*. 
+**HookMod** is a lightweight framework for building modular web applications. It organizes your code into reusable, hierarchical modules, making it easy to create scalable, maintainable projects. With HookMod, you can:
 
-### The Module Dev Environment and Creating a Module
-* Start with a root folder. In this project, that folder is `/src/module/`. 
-* From there, you may create modules by creating a folder. 
-* * The name of the folder is the name of the module. There's no need to label your module anywhere else.
-* * The name of the folder must be compatible with a JavaScript variable syntax.
-* * * It must not start with a number.
-* * * It must not have special characters, except for `_`.
-* * * Lower case and upper case alphanumeric characters are fine.. Except when it breaks the first rule.
-* Every module has only a single file called `main.js`. The file cannot be named anything else.
+- Build reusable components for rapid prototyping or complex apps.
+- Create nested sub-modules for organized, hierarchical code.
+- Share data within and across modules for dynamic features.
+- Integrate styles and templates for rich, interactive UIs.
 
-Example *(modules `foo`, and `bar`)*:
-```
-- /src
-- - /module
-- - - /foo
-- - - - main.js
-- - - /bar
-- - - - main.js
-```
+Whether you're crafting a small tool or a large-scale application, HookMod keeps your code structured and flexible. Let’s get started!
 
-That's all you need for a working module.
+---
 
-To make your module more useful, create sub-directories. 
-* The module's interior folders must also be compatible with JavaScript variables.
-* The module's interior folders must not be named "modules"
-* * To create child modules, make a folder named `modules` and create modules in it.
-* * Fetch those modules using `this.fetch("folderName")` from it's parent.
-* Inside of the interior folders, create files.
-* * The files must be either JavaScript, CSS, or partial HTML documents.
-* * JavaScript files must end with `.js`.
-* * CSS files must end with `.css`.
-* * Partial HTML documents must end with `.htm`.
-* * New extensions may be supported by adding to https://github.com/s-p-n/hookmod/tree/master/lib/ext
-* * Apart from the extension, the filename must be compatible with JavaScript variables.
+## What You Need to Know
 
-Example 2: *(`foo` module with a child `bar` module and some extra stuff)*
-```
-- /src
-- - /module
-- - - /foo
-- - - - /modules
-- - - - - /bar
-- - - - - - /scripts
-- - - - - - - BarClass.js
-- - - - - - - events.js
-- - - - - - /ui
-- - - - - - - display.htm
-- - - - - - - interactive.css
-- - - - - - main.js
-(foo) - /loaders
-- - - - - barLoader.js
-- - - - /ui
-- - - - - list.css
-- - - - - listModules.htm
-- - - - main.js
-```
+- **Modules**: Each module is a folder with a required `main.js` file and optional `.css`, `.htm`, or extra `.js` files.
+- **Sub-Modules**: Modules can contain a `modules` subfolder with nested modules that inherit from their parent.
+- **Purpose**: Break your app into small, reusable pieces with clear setup and lifecycle hooks.
 
-***
+---
 
-## What Modules Do
-* **Separate concerns** 
-* * by storing HTML, CSS, and JavaScript files that associate with each other together.
-* * by enforcing a single sub-directory is used, modules encourage the developer to keep each concern small.
-* * by offering a hierarchical design and encouraging the use of multiple files, refactoring large modules into smaller ones is much easier.
-* **Share data** within the module.
-* * JavaScript files are stored as constructor functions that share a prototype. This allows them to share state with other scripts within the same module. Modules use `this` and provide a `state` object among other things to make sharing within a module easy.
-* * * The `state` member is a special sort of object, allowing the scripts to listen for changes on `state` and bind event listeners to react to data changes. This allows the developer to separate the concern of the user experience from talking with the server, and various other situations. 
-* * HTML Files are automatically parsed by jQuery, ready to select, add style to, and use in clever ways.
-* * CSS Files are stored within the module as text. 
-* * * Generally, you wrap `<style>` tags around your css, and append it to `<head>` in order to use it. You would do this using JavaScript.
-* * * Make your CSS a templated language. We're using JavaScript here, so why not preprocess it? I don't personally do this right now, but the advantages of using identifiers to store colors is clear. It's even possible to use SCSS, SASS, or anything else in the future. We can parse this using Node.JS on the server or JavaScript in the browser.
-* * * You may reference the main CSS files if you like, or name-space your CSS using a single ID so that you don't mess anything up. I do a little bit of both. I reference jQuery-ui styles, the main.css styles, and, when needed, module-specific styles. It seems to be easy to work this way.
-* * * Given the nature of CSS, it's possible to use CSS defined within module outside of your module- or even in other modules.. That's a bad idea, because finding and changing that code is much more difficult. It's best to keep CSS for a module namespaced.
-* **Share data** with other modules.
-* * JavaScript files have a `share` member, similar to the `state` member mentioned above. Unlike `state`, the `share` object is exposed to sibling modules.
-* * Modules may have child modules. When you fetch a module (using `this.fetch()` for children or `modules.fetch()` for top-level modules) you can access all members of the module's prototype. For example, you can access `state`, `share`, any HTML file, or anything explicitly exposed.
+## Setup: Get HookMod Running
 
-***
+1. **Install HookMod**  
+   HookMod is a Node.js package. Install it globally or locally:
+   ```bash
+   npm install -g hookmod
+   ```
+   Or, for a local project:
+   ```bash
+   npm install hookmod
+   ```
 
-# API
-## `window` exposed members
-The following are global variables (you can often reference them without using `window.`)
+2. **Create Your Module Structure**  
+   Set up a `modules` directory with module folders (see Step 1 below).
 
-#### `window.__SHARE__` (**RESTRICTED** Object)
-> **WARNING:** `__SHARE__` is marked for removal. Always use `this.share` instead.
+3. **Generate `hookmod.js`**  
+   Use the `hookmod` CLI to bundle your modules into a single `hookmod.js` file:
+   ```bash
+   hookmod ./modules ./public/js/hookmod.js
+   ```
+   - `./modules`: Path to your modules directory.
+   - `./public/js/hookmod.js`: Output file path.
 
-All modules reference `__SHARE__` with `this.share`. Though, `__SHARE__` currently exists and is exposed on global, DO NOT REFERENCE `__SHARE__` directly. 
- 
-#### `window.modules` (Object) 
-The top-level modules are stored in `window.modules`. 
-Modules must not be named any of the following: 
-* `fetch`
-* `share`
-* `modules`
-* `state`
-* any reserved word (yield, return, for, while, in, with, etc)
+   Alternatively, use a script to watch for changes and auto-recompile (see example below).
 
-#### `modules.fetch(String name)` (Function) 
-Constructs a module named `name`. 
-* The first time the module is fetched, the `constructor()` is invoked, and the module instance is added to cache. 
-* Everytime a module is fetched:
-* * The `onFetch()` method (if defined in `main`) is invoked.
-* * The module instance is returned.
+4. **Include in Your HTML**  
+   Add the generated `hookmod.js` to your HTML:
+   ```html
+   <script src="/js/hookmod.js"></script>
+   ```
 
-#### `modules.share` (Object)
-An object that is shared by all of the modules and constructed prototypes.
+**Example Watch Script**  
+To automatically recompile `hookmod.js` when files change, save this as `build.js`:
+```javascript
+const { watch, writeFileSync } = require('fs');
+const { join } = require('path');
+const HookMod = require('hookmod');
 
-#### `modules.MODULE_NAME` (Constructor)
-A reference to every **available** top-level module is referenced as a member of `modules`. 
+const modulesDir = join(__dirname, 'modules');
+const outputFile = join(__dirname, 'public/js/hookmod.js');
 
-> **Note:** There's no guarantee your module is **available**, so never instantiate your modules using `new modules.MODULE_NAME`. Always use `modules.fetch("MODULE_NAME")` instead. Further, constructing your modules using `new` will not cache the module, will not fetch the module instance from cache, will always call the `constructor()` and will not trigger `onFetch()`.
-
-***
-
-## Constructed Module Members
-These are members available within your module. 
-> For example, these members are available under `this` within `main.js` and any `.js` file in a sub-directory.
-
-### `this.parent`
-For top-level modules, `this.parent` is a reference to `window`. For child modules, `parent` is a reference to their nearest parent's prototype.
-
-##### Example:
-Assume a directory structure like so:
-```
-modules/
-- foo/
-- - modules/
-- - - bar/
-- - - - main.js
-- - main.js
-```
-***`foo/main.js`***
-```JavaScript
-constructor() {
-    let bar = this.modules.fetch('bar');
-    bar.parent === this; // true
+async function compile() {
+  const hookmod = new HookMod({ modulesDirectory: modulesDir });
+  await hookmod.writeTo(outputFile);
+  console.log('Modules compiled to', outputFile);
 }
-```
-***`foo/modules/bar/main.js`***
-```JavaScript
-constructor() {
-    this.parent === window.modules.foo.prototype; // true
-}
-```
 
-### `this.state`
-An object used to share state with different files within the same module.
+compile(); // Initial compile
 
-#### Example:
-Assume a directory structure like so:
-```
-modules/
-- food/
-- - control/
-- - - events.js
-- - hook/
-- - - comms.js
-- - main.js
-```
-***`food/main.js`***
-```JavaScript
-constructor() {
-    // Create a property to store food:
-    this.state.food = 0;
-
-    // Instantiate comms and events
-    new this.hook.comms();
-    new this.control.events();
-}
-```
-***`food/hook/comms.js`***
-```JavaScript
-const self = this;
-// Listen for the server to change the value of "food"
-socket.on("food-change", amount => {
-    // update state.food with the amount of "food" from server.
-    self.state.food = amount;
+watch(modulesDir, { recursive: true }, () => {
+  console.log('Changes detected, recompiling...');
+  compile();
 });
-```
-***`food/control/events.js`***
-```JavaScript
-const self = this;
-// Listen for an input named "food" to change
-$('#food input[name=food]').on('change', function (e) {
-    // Update state.food with the value of the "food" input
-    self.state.food = $(this).val();
-});
-```
-The above module separates the concern of browser events from the concern of server events. The above is incomplete because we haven't yet listened for changes on state to sync the server and client. 
 
+console.log('Watching for changes...');
+```
+Run it with:
+```bash
+node build.js
+```
+
+---
+
+## Step 1: Set Up Your Modules
+
+1. Create a root folder (e.g., `./modules/`).
+2. Add module folders inside it (e.g., `foo`, `bar`).
+   - **Important**: Folder names must be valid JavaScript variable names (letters, numbers, `_`, no starting with numbers). This name becomes your module’s identifier.
+3. Add a `main.js` file in each module folder.
+4. (Optional) Add a `modules` subfolder for sub-modules.
+
+**Example**:
+```
+- modules
+  - foo
+    - main.js
+    - modules
+      - subfoo
+        - main.js
+  - bar
+    - main.js
+```
+
+---
+
+## Step 2: Write `main.js`
+
+HookMod turns your `main.js` into a class named after the folder (e.g., `foo` for `/foo/main.js`). Write methods and properties directly—no `class` or `export` needed.
+
+### Example:
+```javascript
+// modules/foo/main.js
+constructor() {
+  console.log("Foo module loaded!");
+}
+
+onFetch() {
+  console.log("Foo module fetched!");
+}
+
+sayHello() {
+  hod return "Hello from Foo!";
+}
+```
+
+### Sub-Module Example:
+For `/foo/modules/subfoo/main.js`:
+```javascript
+// modules/foo/modules/subfoo/main.js
+constructor() {
+  console.log("SubFoo loaded, parent is:", this.parent.constructor.name);
+}
+
+greet() {
+  return "Hello from SubFoo!";
+}
+```
+
+### Key Methods:
+- **`constructor()`**: Runs once when the module loads //-loads. Use for setup (e.g., styles, DOM).
+- **`onFetch()`**: Runs every time the module is fetched. Use for updates.
+
+### Rules:
+- Don’t use `class` or `export`—HookMod handles that.
+- Keep logic inside methods—loose variables or functions won’t work.
+
+---
+
+## Step 3: Fetch Your Module
+
+Load and use your module with `modules.fetch('moduleName')`:
+```javascript
+const foo = modules.fetch('foo');
+console.log(foo.sayHello()); // "Hello from Foo!"
+
+// Fetching a sub-module from within the parent
+const subFoo = foo.modules.fetch('subfoo');
+console.log(subFoo.greet()); // "Hello from SubFoo!"
+```
+
+- **First fetch**: Runs `constructor()` + `onFetch()`.
+- **Later fetches**: Runs only `onFetch()`.
+- **Note**: Use `modules.fetch()`, not `new modules.foo()`.
+
+**Sub-Module Access**:
+- To fetch a sub-module from within the parent module, use `this.modules.fetch('subfoo')`. This ensures proper initialization and caching.
+- Sub-modules can also be accessed directly via `this.modules.subfoo`, but using `fetch` is recommended to trigger `onFetch` if defined.
+- Sub-modules inherit from the parent's prototype, so they can call the parent's methods directly via `this` (e.g., `this.sayHello()`).
+
+---
+
+## Step 4: Add Optional
+
+Enhance your module with subfolders containing `.js`, `.css`, and `.htm` files. These files are processed and attached to your module’s prototype, making them accessible within your module’s methods.
+
+### Using CSS Files
+- **How It Works**: CSS files are read as strings and attached to the module (e.g., `this.ui.styles`).
+- **Usage**: Inject the CSS string into the document to apply styles.
+
+**Example**:
+```javascript
+constructor() {
+  const style = document.createElement('style');
+  style.textContent = this.ui.styles;
+  document.head.appendChild(style);
+}
+```
+
+### 🙂 Using HTM Files for Dynamic Templates
+- **How It Works**: HTM files are processed into functions that return DOM elements. They support dynamic content using JavaScript template literals (```javascript
+(e.g., `${this.property}`) and preserve whitespace for readability.
+- **Usage**: Call the template function with an object containing the properties used in the template.
+
+**Example**:
+**Template File**:
+```
+<!-- modules/Article/ui/article.htm -->
+<div id="${this.node_id}">
+  <h3>${this.title}</h3>
+  <p>${this.content}</p>
+</div>
+```
+
+**Module Code**:
+```javascript
+// modules/Article/main.js
+#articles = [];
+
+constructor() {
+  // Initialize styles or other setup
+  // Create a test article
+  let article = this.createArticle('Hello, World!', 'This is a test article');
+  document.body.appendChild(article.node); // Append to DOM
+}
+
+createArticle(title, content) {
+  let index = this.#articles.push({ title, content }) - 1;
+  let article = this.#articles[index];
+  article.node_id = `article-${index}`;
+  article.node = this.ui.article.call(article); // Render template with article data
+  return article;
+}
+```
+
+- **Dynamic Placeholders**: Use `${this.property}` to insert data (e.g., `node_id`, `title`, `content`).
+- **Whitespace Preservation**: Indentation and line breaks in the HTM file are preserved for readability.
+- **Rendering**: `this.ui.article.call(article)` sets `this` to the `article` object, replacing placeholders with its properties.
+- **Output**: A DOM element with dynamic content, ready to append to the document.
+
+**Tips**:
+- Ensure all properties used in the template are defined on the object passed to the template function.
+- Use vanilla JavaScript or jQuery to manipulate the rendered nodes.
+
+### Using Additional JS Files
+- **How It Works**: JS files in subfolders become methods or properties (e.g., `/lib/utils.js` → `this.lib.utils()`).
+- **Usage**: Call these functions from your module’s methods for additional logic.
+
+**Example**:
+```javascript
+// lib/utils.js
+return function() {
+  return "Utility function executed!";
+};
+```
+
+```javascript
+runUtility() {
+  console.log(this.lib.utils()); // "Utility function executed!"
+}
+```
+
+**Note**: For most use cases, combining sibling modules with optional `.js`, `.css`, and `.htm` files is sufficient. Sub-modules are useful when you need to share state or create a deep hierarchy of related components.
+
+---
+
+## Step 5: Share Data
+
+- **Within a Module**: Use `this.state` for persistent data:
+  ```javascript
+  constructor() {
+    this.state.count = 0;
+  }
+
+  increment() {
+    this.state.count++;
+    return this.state.count;
+  }
+  ```
+- **Between Modules**: Use `this.share` for global data:
+  ```javascript
+  // In module 'foo'
+  this.share.appName = "My App";
+
+  // In module 'bar'
+  console.log(this.share.appName); // "My App"
+  ```
+- **Parent-Child Interaction**: Sub-modules can access the parent's prototype methods directly:
+  ```javascript
+  // In /foo/modules/subfoo/main.js
+  callParentMethod() {
+    return this.sayHello(); // Calls Foo’s sayHello method
+  }
+  ```
+  - **Note**: `this.parent` refers to the parent module's prototype, not the instance. Use it to access shared properties or methods.
+
+---
+
+## Avoid These Mistakes
+
+- Writing `class` or `export` in `main.js`.
+- Adding code outside methods (e.g., top-level variables).
+- Expecting `constructor()` to run every fetch—use `onFetch()`.
+- Confusing `this.parent` with the parent's instance. `this.parent` is the parent's prototype.
+
+---
+
+## Quick Tips
+
+- Treat `main.js` as a class body.
+- Use `constructor()` for setup, `onFetch()` for updates.
+- Keep module names valid (e.g., `greeter`, not `123greeter`).
+- Use sub-modules to organize complex functionality.
+- Check the console for errors if something’s off.
+
+---
+
+## Basic API
+
+- **`modules.fetch('name')`**: Get a module instance.
+- **`this.state`**: Store data within a module.
+- **`this.share`**: Share data across modules.
+- **`this.parent`**: Refers to the parent module's prototype (for sub-modules).
+- **Module Structure**:
+  - `.js` → Methods/properties.
+  - `.css` → Stringified styles.
+  - `.htm` → jQuery-parsed templates.
+  - `modules/` → Sub-modules.
+
+---
+
+## What Can You Build?
+
+HookMod’s modular design supports a wide range of web apps:
+- **Interactive Tools**: Create calculators or dashboards with reusable logic.
+- **Dynamic UIs**: Use `.htm` templates and `.css` styles for rich interfaces.
+- **Hierarchical Apps**: Leverage sub-modules for complex, nested functionality.
+- **Collaborative Projects**: Share data via `this.share` for team-friendly code.
+
+Check out the [HookMod repository](https://github.com/s-p-n/hookmod) for examples and source code. Happy coding!
