@@ -11,7 +11,7 @@ Whether you're crafting a small tool or a large-scale application, HookMod keeps
 
 ---
 
-[![Watch the video](https://img.youtube.com/vi/UOQC_0dQfuo/maxresdefault.jpg)](https://youtu.be/UOQC_0dQfuo)
+[![Watch the video](https://img.youtube.com/vi/UOQC_0dQfuo/hqdefault.jpg)](https://youtu.be/UOQC_0dQfuo)
 
 
 ## What You Need to Know
