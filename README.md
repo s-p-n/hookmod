@@ -11,6 +11,9 @@ Whether you're crafting a small tool or a large-scale application, HookMod keeps
 
 ---
 
+[![Watch the video](https://img.youtube.com/vi/UOQC_0dQfuo/maxresdefault.jpg)](https://youtu.be/UOQC_0dQfuo)
+
+
 ## What You Need to Know
 
 - **Modules**: Each module is a folder with a required `main.js` file and optional `.js`, `.css`, `.htm`, or `.json` files.
