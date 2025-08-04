@@ -13,7 +13,7 @@ Whether you're crafting a small tool or a large-scale application, HookMod keeps
 
 ## What You Need to Know
 
-- **Modules**: Each module is a folder with a required `main.js` file and optional `.css`, `.htm`, or extra `.js` files.
+- **Modules**: Each module is a folder with a required `main.js` file and optional `.js`, `.css`, `.htm`, or `.json` files.
 - **Sub-Modules**: Modules can contain a `modules` subfolder with nested modules that inherit from their parent.
 - **Purpose**: Break your app into small, reusable pieces with clear setup and lifecycle hooks.
 
@@ -35,7 +35,7 @@ Whether you're crafting a small tool or a large-scale application, HookMod keeps
    Set up a `modules` directory with module folders (see Step 1 below).
 
 3. **Generate `hookmod.js`**  
-   Use the `hookmod` CLI to bundle your modules into a single `hookmod.js` file:
+   Use the `hookmod` CLI to bundle your modules into a single `hookmod.js` file during a build step:
    ```bash
    hookmod ./modules ./public/js/hookmod.js
    ```
@@ -80,6 +80,12 @@ Run it with:
 node build.js
 ```
 
+### Debugging with Source Maps
+- **How It Works**: HookMod automatically generates source maps during bundling (`hookmod.js.map`), mapping the concatenated `hookmod.js` back to original files (main.js, .htm, .css, .js, .json). This allows runtime errors in browser DevTools to point to the exact line in the source file.
+- **Usage**: Open your app in a browser with DevTools (e.g., Chrome F12). Errors in templates (.htm), styles (.css), utilities (.js), or data (.json) will map to the original file and line.
+- **Limitations**: Syntax errors in .js or .json throw during build or in the generated file before maps activate. Runtime errors (e.g., undefined variables in templates) map correctly.
+- **Tips**: Enable source maps in DevTools settings (Sources > Enable JavaScript source maps). For dynamic templates (.htm), use `${this.prop}` placeholders—errors map to the template line.
+
 ---
 
 ## Step 1: Set Up Your Modules
@@ -120,7 +126,7 @@ onFetch() {
 }
 
 sayHello() {
-  hod return "Hello from Foo!";
+  return "Hello from Foo!";
 }
 ```
 
@@ -138,12 +144,13 @@ greet() {
 ```
 
 ### Key Methods:
-- **`constructor()`**: Runs once when the module loads //-loads. Use for setup (e.g., styles, DOM).
+- **`constructor()`**: Runs once when the module loads. Use for setup (e.g., styles, DOM).
 - **`onFetch()`**: Runs every time the module is fetched. Use for updates.
 
 ### Rules:
 - Don’t use `class` or `export`—HookMod handles that.
 - Keep logic inside methods—loose variables or functions won’t work.
+- Sub-modules can call parent methods directly via `this` (e.g., `this.sayHello()`).
 
 ---
 
@@ -165,14 +172,13 @@ console.log(subFoo.greet()); // "Hello from SubFoo!"
 
 **Sub-Module Access**:
 - To fetch a sub-module from within the parent module, use `this.modules.fetch('subfoo')`. This ensures proper initialization and caching.
-- Sub-modules can also be accessed directly via `this.modules.subfoo`, but using `fetch` is recommended to trigger `onFetch` if defined.
 - Sub-modules inherit from the parent's prototype, so they can call the parent's methods directly via `this` (e.g., `this.sayHello()`).
 
 ---
 
-## Step 4: Add Optional
+## Step 4: Add Optional Files
 
-Enhance your module with subfolders containing `.js`, `.css`, and `.htm` files. These files are processed and attached to your module’s prototype, making them accessible within your module’s methods.
+Enhance your module with subfolders containing `.js`, `.css`, `.htm`, or `.json` files. These files are processed and attached to your module’s prototype, making them accessible within your module’s methods.
 
 ### Using CSS Files
 - **How It Works**: CSS files are read as strings and attached to the module (e.g., `this.ui.styles`).
@@ -187,9 +193,8 @@ constructor() {
 }
 ```
 
-### 🙂 Using HTM Files for Dynamic Templates
-- **How It Works**: HTM files are processed into functions that return DOM elements. They support dynamic content using JavaScript template literals (```javascript
-(e.g., `${this.property}`) and preserve whitespace for readability.
+### Using HTM Files for Dynamic Templates
+- **How It Works**: HTM files are processed into functions that return DOM elements. They support dynamic content using JavaScript template literals (e.g., `${this.property}`) and preserve whitespace for readability.
 - **Usage**: Call the template function with an object containing the properties used in the template.
 
 **Example**:
@@ -250,7 +255,26 @@ runUtility() {
 }
 ```
 
-**Note**: For most use cases, combining sibling modules with optional `.js`, `.css`, and `.htm` files is sufficient. Sub-modules are useful when you need to share state or create a deep hierarchy of related components.
+### Using JSON Files
+- **How It Works**: JSON files are attached as objects or arrays (e.g., `/data/config.json` → `this.data.config`).
+- **Usage**: Access the data directly in your methods for configuration or static data.
+
+**Example**:
+```json
+// data/config.json
+{
+  "theme": "dark",
+  "apiUrl": "https://example.com/api"
+}
+```
+
+```javascript
+constructor() {
+  console.log(this.data.config.theme); // "dark"
+}
+```
+
+**Note**: For most use cases, combining sibling modules with optional `.js`, `.css`, `.htm`, and `.json` files is sufficient. Sub-modules are useful when you need to share state or create a sub-hierarchy of related components.
 
 ---
 
@@ -292,6 +316,7 @@ runUtility() {
 - Adding code outside methods (e.g., top-level variables).
 - Expecting `constructor()` to run every fetch—use `onFetch()`.
 - Confusing `this.parent` with the parent's instance. `this.parent` is the parent's prototype.
+- Forgetting to define properties in objects passed to templates (.htm) or utilities (.js).
 
 ---
 
@@ -302,6 +327,7 @@ runUtility() {
 - Keep module names valid (e.g., `greeter`, not `123greeter`).
 - Use sub-modules to organize complex functionality.
 - Check the console for errors if something’s off.
+- For dynamic templates (.htm), use `${this.prop}` placeholders—errors map to the template line.
 
 ---
 
@@ -314,7 +340,8 @@ runUtility() {
 - **Module Structure**:
   - `.js` → Methods/properties.
   - `.css` → Stringified styles.
-  - `.htm` → jQuery-parsed templates.
+  - `.htm` → jQuery-parsed templates with dynamic placeholders.
+  - `.json` → Literal objects/arrays.
   - `modules/` → Sub-modules.
 
 ---
@@ -324,7 +351,7 @@ runUtility() {
 HookMod’s modular design supports a wide range of web apps:
 - **Interactive Tools**: Create calculators or dashboards with reusable logic.
 - **Dynamic UIs**: Use `.htm` templates and `.css` styles for rich interfaces.
-- **Hierarchical Apps**: Leverage sub-modules for complex, nested functionality.
+- **Hierarchical Apps**: Use sub-modules for complex, nested functionality.
 - **Collaborative Projects**: Share data via `this.share` for team-friendly code.
 
 Check out the [HookMod repository](https://github.com/s-p-n/hookmod) for examples and source code. Happy coding!

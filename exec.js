@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-//npmrequire('colors');
-
 let Group = require('./lib/Group.js');
 let verbose = false;
 const path = require('path');
@@ -38,7 +36,11 @@ if (!process.argv[3]) {
   process.exit(1);
 }
 
-let p = new Group(process.argv[2], verbose);
+let options = {
+  modulesDirectory: process.argv[2],
+  verbose
+};
+let p = new Group(options);
 
 p.writeTo(path.resolve(process.argv[3]));
 
