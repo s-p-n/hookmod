@@ -5,6 +5,13 @@ const { execSync } = require('child_process');
 const tempDir = path.join(__dirname, 'temp_test');
 const modulesDir = path.join(tempDir, 'modules');
 const outputFile = path.join(tempDir, 'hookmod.js');
+let passed = true;
+
+console.log(process.argv)
+
+if (fs.existsSync(tempDir)) {
+  fs.rmSync(tempDir, { recursive: true, force: true });
+}
 
 // Setup sample modules
 fs.mkdirSync(modulesDir, { recursive: true });
@@ -43,7 +50,6 @@ fs.writeFileSync(path.join(modulesDir, 'foo', 'data', 'config.json'), `{"key": "
 try {
   execSync(`node ${path.join(__dirname, 'exec.js')} ${modulesDir} ${outputFile}`);
   console.log('Bundling succeeded.');
-
   // Verify output
   const output = fs.readFileSync(outputFile, 'utf8');
   const normalizedOutput = output.replace(/\s+/g, ' ');
@@ -54,17 +60,19 @@ try {
   }
 
   // .htm: Function with $(`...`) (normalized)
-  if (!normalizedOutput.includes("ui.template=function() { return $(` <div>Hello, ${this.name}</div> `); }")) {
+  if (!normalizedOutput.includes("window.modules.foo.prototype.ui.template=function() { return $(` <div>Hello, ${this.name}</div> `); }")) {
+    let loc = normalizedOutput.indexOf('window.modules.foo.prototype.ui.template');
+    console.log(normalizedOutput.slice(loc, loc + 150))
     throw new Error('Missing or incorrect .htm template');
   }
 
   // .css: Function returning template string (normalized)
-  if (!normalizedOutput.includes("ui.styles=function() { return ` body { color: ${this.color}; } `; }")) {
+  if (!normalizedOutput.includes("window.modules.foo.prototype.ui.styles=function() { return ` body { color: ${this.color}; } `; }")) {
     throw new Error('Missing or incorrect .css function');
   }
 
   // .js (additional): Prototype method (normalized)
-  if (!normalizedOutput.includes("lib.util=function() { return this.state.test + ' extra'; }")) {
+  if (!normalizedOutput.includes("window.modules.foo.prototype.lib.util=function() { return this.state.test + ' extra'; }")) {
     throw new Error('Missing additional .js method');
   }
 
@@ -80,11 +88,20 @@ try {
 
   console.log('Output verified: All extensions and runtime present.');
 } catch (e) {
+  passed = false;
   console.error('Test failed:', e.message);
-  process.exit(1);
+  if (process.argv[2] === '--debug') {
+    console.log(`(See ${tempDir} to examine output)`);
+    process.exit(1);
+  }
+  console.log('(Use `node test.js --debug` or `npm test --debug` to preserve the output directory for inspection.)')
 } finally {
   // Cleanup
   fs.rmSync(tempDir, { recursive: true, force: true });
+  console.log(`Removed ${tempDir}`);
 }
-
-console.log('All tests passed.');
+if (passed) {
+  console.log('All tests passed.');
+} else {
+  console.log('Tests failed.');
+}

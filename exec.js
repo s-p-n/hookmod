@@ -4,8 +4,7 @@ let Group = require('./lib/Group.js');
 let verbose = false;
 const path = require('path');
 const fs = require('fs');
-const instructions = (function () {
-  return `
+const instructions = `
   +-------------------------------------------+
   | Usage:                                    |
   | $ hookmod <modulesDirectory> <outfile>    |
@@ -14,7 +13,6 @@ const instructions = (function () {
   | $ hookmod -v <modulesDirectory> <outfile> |
   +-------------------------------------------+
 `;
-}());
 
 function error (message) {
   console.error(`${message}\n${instructions}`);
